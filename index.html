@@ -10,7 +10,6 @@
   <div id="os">Detecting…</div>
 
   <script>
-    const DEFAULT_FALLBACK_URL = "https://dispatch.shipday.com"; 
     const reviewId = "12345"; // replace dynamically if needed
     const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.shipday.dispatch";
 
@@ -26,35 +25,12 @@
       return getMobileOperatingSystem() === "Android";
     }
 
-    function setT(fn, t) { setTimeout(fn, t); }
-
     const os = getMobileOperatingSystem();
     document.getElementById("os").textContent = os;
 
-    // --- Android deep link executor ---
-    const ANDROID_PRIMARY   = `shipday://dispatch.shipday.com/review/${reviewId}`;
-    const ANDROID_SECONDARY = `shipday://staging.shipday.com/review/${reviewId}`;
-    const ANDROID_INTENT = (function () {
-      const fb = encodeURIComponent(DEFAULT_FALLBACK_URL);
-      return `intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${fb};end`;
-    })();
-
-    let appOpened = false;
-
     if (isAndroid()) {
-      try {
-        const iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        iframe.src = ANDROID_PRIMARY;
-        document.body.appendChild(iframe);
-      } catch (e) {}
-
-      setT(() => { if (!appOpened) window.location.href = ANDROID_PRIMARY; }, 120);
-      setT(() => { if (!appOpened) window.location.href = ANDROID_SECONDARY; }, 400);
-      setT(() => { if (!appOpened) window.location.href = ANDROID_INTENT; }, 900);
-
-      // Final safety net → Google Play
-      setT(() => { if (!appOpened) window.location.href = PLAY_STORE_URL; }, 1500);
+      const intentUrl = `intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
+      window.location.href = intentUrl;
     }
   </script>
 </body>
