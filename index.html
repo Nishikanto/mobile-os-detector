@@ -1,121 +1,37 @@
-@(title: String, reviewId: String)
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile OS Detector with Android Deep Link</title>
+</head>
+<body>
+  <h1>Mobile OS Detector</h1>
+  <div id="os">Detecting…</div>
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>@title</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            body {
-                font-family: 'Arial', sans-serif;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-            }
+  <script>
+    const reviewId = "12345"; // replace dynamically if needed
+    const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.shipday.dispatch";
 
-            .container {
-                text-align: center;
-            }
+    function getMobileOperatingSystem() {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      if (/windows phone/i.test(userAgent)) return "Windows Phone";
+      if (/android/i.test(userAgent)) return "Android";
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+      return "unknown";
+    }
 
-            .logo {
-                width: 180px;
-                margin-bottom: 20px;
-            }
+    function isAndroid() {
+      return getMobileOperatingSystem() === "Android";
+    }
 
-        </style>
-            <!-- Bowser UA parser -->
-        <script src="https://unpkg.com/bowser@2.11.0/es5.js"></script>
+    const os = getMobileOperatingSystem();
+    document.getElementById("os").textContent = os;
 
-        <script>
-                window.onload = function () {
-                    const BASE_URL = "https://staging.shipday.com";
-                    const reviewId = "@reviewId";
-                    const DEFAULT_FALLBACK_URL = `${BASE_URL}/dashboard?reviewId=${reviewId}#reviews`;
-
-                    function detect() {
-                        const parser = bowser.getParser(navigator.userAgent || "");
-                        const osName = (parser.getOSName(true) || "").toLowerCase();
-                        const platformType = (parser.getPlatformType(true) || "").toLowerCase();
-                        const touch = ("ontouchstart" in window) || (navigator.maxTouchPoints || 0) > 0;
-                        const isAndroid = osName === "android";
-                        const isIOS = osName === "ios" || (osName === "macos" && (navigator.maxTouchPoints || 0) > 1);
-                        const isMobile = (platformType === "mobile" || platformType === "tablet" ||
-                                Math.min(window.innerWidth, window.innerHeight) <= 1024) && touch;
-                        return { isAndroid, isIOS, isMobile };
-                    }
-
-                    const { isAndroid, isIOS, isMobile } = detect();
-
-                    if (!isMobile) {
-                        window.location.href = DEFAULT_FALLBACK_URL;
-                        return;
-                    }
-
-                    let appOpened = false;
-                    let hiddenAt = 0;
-                    let safeFallbackFired = false;
-
-                    function markOpened() {
-                        appOpened = true;
-                        clearAllFallbackTimers();
-                    }
-
-                    function onVisibilityChange() {
-                        if (document.hidden) {
-                            hiddenAt = Date.now();
-                        } else {
-                            const delta = hiddenAt ? (Date.now() - hiddenAt) : 0;
-                            if (delta >= 300 && delta <= 60000) markOpened();
-                        }
-                    }
-
-                    function onPageHide() { markOpened(); }
-
-                    document.addEventListener("visibilitychange", onVisibilityChange);
-                    window.addEventListener("pagehide", onPageHide);
-
-                    function fallbackToDashboard() {
-                        if (safeFallbackFired || appOpened) return;
-                        safeFallbackFired = true;
-                        window.location.href = DEFAULT_FALLBACK_URL;
-                    }
-
-                    const timers = [];
-                    function setT(fn, ms) { const id = setTimeout(fn, ms); timers.push(id); return id; }
-                    function clearAllFallbackTimers() { while (timers.length) clearTimeout(timers.pop()); }
-
-                    setT(() => { if (!appOpened) fallbackToDashboard(); }, 3500);
-                    setT(() => { if (!appOpened) fallbackToDashboard(); }, 6000);
-
-                    const IOS_PRIMARY     = `shipday://review/${reviewId}`;
-                    const IOS_ALTERNATE   = `shipday://dispatch.shipday.com/review/${reviewId}`;
-                    const ANDROID_INTENT  = (function () {
-                        const fb = encodeURIComponent(DEFAULT_FALLBACK_URL);
-                        return `intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${fb};end`;
-                    })();
-
-                    if (isAndroid) {
-                        setT(() => { if (!appOpened) window.location.href = ANDROID_INTENT; }, 120);
-                    } else if (isIOS) {
-                        window.location.href = IOS_PRIMARY;
-                        setT(() => { if (!appOpened) window.location.href = IOS_ALTERNATE; }, 800);
-                        setT(() => { if (!appOpened) fallbackToDashboard(); }, 2500);
-
-                    } else {
-                        fallbackToDashboard();
-                    }
-                };
-        </script>
-
-    </head>
-    <body>
-        <div class="container">
-            <img src="/assets/images/logo-shipday-solid.svg" alt="Shipday Logo" class="logo">
-            <div>Please wait, loading the dispatch dashboard...</div>
-        </div>
-    </body>
+    if (isAndroid()) {
+      const intentUrl = intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end;
+      window.location.href = intentUrl;
+    }
+  </script>
+</body>
 </html>
- 
