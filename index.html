@@ -92,13 +92,14 @@
 
                     const IOS_PRIMARY     = `shipday://review/${reviewId}`;
                     const IOS_ALTERNATE   = `shipday://dispatch.shipday.com/review/${reviewId}`;
-                    const ANDROID_INTENT  = (function () {
-                        const fb = encodeURIComponent(DEFAULT_FALLBACK_URL);
-                        return `intent://dispatch.shipday.com/review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${fb};end`;
-                    })();
+                    
+                    const ANDROID_PRIMARY = `shipday://dispatch.shipday.com/review/${reviewId}`;
+                    const ANDROID_ALTERNATIVE = `shipday://review/${reviewId}`;
 
                     if (isAndroid) {
-                        setT(() => { if (!appOpened) window.location.href = ANDROID_INTENT; }, 120);
+                        window.location.href = ANDROID_PRIMARY;
+                        setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 800);
+                        setT(() => { if (!appOpened) fallbackToDashboard(); }, 2500);
                     } else if (isIOS) {
                         window.location.href = IOS_PRIMARY;
                         setT(() => { if (!appOpened) window.location.href = IOS_ALTERNATE; }, 800);
