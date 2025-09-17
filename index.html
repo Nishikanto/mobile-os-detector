@@ -29,7 +29,7 @@
     document.getElementById("os").textContent = os;
 
     if (isAndroid()) {
-      const intentUrl = intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end;
+      const intentUrl = `intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
       window.location.href = intentUrl;
     }
   </script>
