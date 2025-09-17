@@ -27,7 +27,7 @@
 
         </style>
             <!-- Bowser UA parser -->
-        <script src="https://unpkg.com/bowser@@2.11.0/es5.js"></script>
+        <script src="https://unpkg.com/bowser@2.11.0/es5.js"></script>
 
         <script>
                 window.onload = function () {
@@ -87,17 +87,18 @@
                     function setT(fn, ms) { const id = setTimeout(fn, ms); timers.push(id); return id; }
                     function clearAllFallbackTimers() { while (timers.length) clearTimeout(timers.pop()); }
 
-                    // setT(() => { if (!appOpened) fallbackToDashboard(); }, 3500);
-                    // setT(() => { if (!appOpened) fallbackToDashboard(); }, 6000);
+                    //setT(() => { if (!appOpened) fallbackToDashboard(); }, 3500);
+                    //setT(() => { if (!appOpened) fallbackToDashboard(); }, 6000);
 
                     const IOS_PRIMARY     = `shipday://review/${reviewId}`;
                     const IOS_ALTERNATE   = `shipday://dispatch.shipday.com/review/${reviewId}`;
+                    
                     const ANDROID_PRIMARY = `shipday://dispatch.shipday.com/review/${reviewId}`;
                     const ANDROID_ALTERNATE = `shipday://review/${reviewId}`;
 
                     if (isAndroid) {
-                        window.location.href = ANDROID_PRIMARY;
-                        setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATE; }, 800);
+                         window.location.href = ANDROID_PRIMARY;
+                        setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 800);
                         setT(() => { if (!appOpened) fallbackToDashboard(); }, 2500);
                     } else if (isIOS) {
                         window.location.href = IOS_PRIMARY;
@@ -117,3 +118,4 @@
         </div>
     </body>
 </html>
+ 
