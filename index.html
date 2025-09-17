@@ -3,102 +3,57 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mobile OS Detector</title>
-  <style>
-    html, body { height: 100%; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: #0f172a; color: #e5e7eb; display: grid; place-items: center;
-    }
-    .card {
-      width: min(680px, 92vw);
-      background: #111827; border: 1px solid #1f2937; border-radius: 18px; padding: 24px 22px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
-    h1 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: .2px; }
-    p { margin: 8px 0; line-height: 1.5; color: #cbd5e1; }
-    .result { font-size: 2.2rem; font-weight: 700; margin: 6px 0 12px; color: #a3e635; }
-    .muted { color: #94a3b8; font-size: .9rem; }
-    .ua {
-      margin-top: 10px; padding: 10px 12px; background: #0b1220; border: 1px solid #1e293b; border-radius: 12px; overflow-wrap: anywhere;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: .85rem; color: #c7d2fe;
-    }
-    .btns { display: flex; gap: 10px; margin-top: 14px; }
-    button {
-      appearance: none; border: 1px solid #334155; background: #0b1324; color: #e2e8f0; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 600;
-    }
-    button:hover { background: #0f1830; }
-    footer { margin-top: 14px; font-size: .85rem; color: #9ca3af; }
-  </style>
+  <title>Mobile OS Detector with Android Deep Link</title>
 </head>
 <body>
-  <main class="card">
-    <h1>Mobile OS Detector</h1>
-    <p class="muted">Loads instantly and shows what your current mobile browser reports.</p>
-
-    <div id="os" class="result">Detecting…</div>
-
-    <div>
-      <div class="muted">User-Agent</div>
-      <div id="ua" class="ua"></div>
-    </div>
-
-    <div class="btns">
-      <button id="recheck">Re-check</button>
-      <button id="copy">Copy result</button>
-    </div>
-
-    <footer>
-      Uses straightforward UA sniffing. On newer iPadOS versions, Safari may identify as “Mac” unless you disable “Request Desktop Website”.
-    </footer>
-  </main>
+  <h1>Mobile OS Detector</h1>
+  <div id="os">Detecting…</div>
 
   <script>
-    /**
-     * Determine the mobile operating system.
-     * This function returns one of 'iOS', 'Android', 'Windows Phone', or 'unknown'.
-     *
-     * @returns {String}
-     */
+    const DEFAULT_FALLBACK_URL = "https://dispatch.shipday.com"; 
+    const reviewId = "12345"; // replace with dynamic ID if you need
+
     function getMobileOperatingSystem() {
-      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-      // Windows Phone must come first because its UA also contains "Android"
-      if (/windows phone/i.test(userAgent)) {
-        return "Windows Phone";
-      }
-
-      if (/android/i.test(userAgent)) {
-        return "Android";
-      }
-
-      // iOS detection from: http://stackoverflow.com/a/9039885/177710
-      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        return "iOS";
-      }
-
+      if (/windows phone/i.test(userAgent)) return "Windows Phone";
+      if (/android/i.test(userAgent)) return "Android";
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
       return "unknown";
     }
 
-    function update() {
-      var os = getMobileOperatingSystem();
-      var ua = navigator.userAgent;
-      document.getElementById('os').textContent = os;
-      document.getElementById('ua').textContent = ua;
+    function isAndroid() {
+      return getMobileOperatingSystem() === "Android";
     }
 
-    document.getElementById('recheck').addEventListener('click', update);
-    document.getElementById('copy').addEventListener('click', async () => {
-      const txt = `OS: ${getMobileOperatingSystem()}\nUA: ${navigator.userAgent}`;
-      try {
-        await navigator.clipboard.writeText(txt);
-        alert('Copied to clipboard');
-      } catch (e) {
-        alert('Could not copy automatically. Select the text and copy.');
-      }
-    });
+    // simple timer helper
+    function setT(fn, t) { setTimeout(fn, t); }
 
-    // Run on load
-    update();
+    // Update UI
+    const os = getMobileOperatingSystem();
+    document.getElementById("os").textContent = os;
+
+    // --- Android deep link executor ---
+    const ANDROID_PRIMARY   = `shipday://dispatch.shipday.com/review/${reviewId}`;
+    const ANDROID_SECONDARY = `shipday://staging.shipday.com/review/${reviewId}`;
+    const ANDROID_INTENT = (function () {
+      const fb = encodeURIComponent(DEFAULT_FALLBACK_URL);
+      return `intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.sddispatch;S.browser_fallback_url=${fb};end`;
+    })();
+
+    let appOpened = false; // you can toggle this if your app sets a flag back
+    if (isAndroid()) {
+      try {
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = ANDROID_PRIMARY;
+        document.body.appendChild(iframe);
+      } catch (e) {}
+
+      setT(() => { if (!appOpened) window.location.href = ANDROID_PRIMARY; }, 120);
+      setT(() => { if (!appOpened) window.location.href = ANDROID_SECONDARY; }, 400);
+      setT(() => { if (!appOpened) window.location.href = ANDROID_INTENT; }, 900);
+    }
   </script>
 </body>
 </html>
