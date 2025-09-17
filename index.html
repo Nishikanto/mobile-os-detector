@@ -104,7 +104,6 @@
                         window.location.href = IOS_PRIMARY;
                         setT(() => { if (!appOpened) window.location.href = IOS_ALTERNATE; }, 800);
                         setT(() => { if (!appOpened) fallbackToDashboard(); }, 2500);
-
                     } else {
                         fallbackToDashboard();
                     }
