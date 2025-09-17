@@ -12,6 +12,7 @@
   <script>
     const reviewId = "12345"; // replace dynamically if needed
     const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.shipday.dispatch";
+    const DEEP_LINK = `shipday://review/${reviewId}`;
 
     function getMobileOperatingSystem() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -29,8 +30,13 @@
     document.getElementById("os").textContent = os;
 
     if (isAndroid()) {
-      const intentUrl = `intent://review/${reviewId}#Intent;scheme=shipday;package=com.shipday.dispatch;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
-      window.location.href = intentUrl;
+      // Try to open the app
+      window.location.href = DEEP_LINK;
+
+      // If it doesn't open within 2s, go to Play Store
+      setTimeout(() => {
+        window.location.href = PLAY_STORE_URL;
+      }, 2000);
     }
   </script>
 </body>
