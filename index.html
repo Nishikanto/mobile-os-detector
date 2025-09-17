@@ -98,7 +98,7 @@
 
                     if (isAndroid) {
                         window.location.href = ANDROID_PRIMARY;
-                        setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 800);
+                        setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 1500);
                         setT(() => { if (!appOpened) fallbackToDashboard(); }, 2500);
                     } else if (isIOS) {
                         window.location.href = IOS_PRIMARY;
