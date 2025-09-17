@@ -33,7 +33,7 @@
                 window.onload = function () {
                     const BASE_URL = "https://staging.shipday.com";
                     const reviewId = "@reviewId";
-                    const DEFAULT_FALLBACK_URL = `https://www.youtube.com`;
+                    const DEFAULT_FALLBACK_URL = `https://play.google.com/store/apps/details?id=com.shipday.dispatch`;
 
                     function detect() {
                         const parser = bowser.getParser(navigator.userAgent || "");
@@ -99,7 +99,7 @@
                     if (isAndroid) {
                         window.location.href = ANDROID_PRIMARY;
                         setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 1500);
-                        setT(() => { if ((!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 2500);
+                         setT(() => { if (!appOpened) fallbackToDashboard(); }, 2500);
                     } else if (isIOS) {
                         window.location.href = IOS_PRIMARY;
                         setT(() => { if (!appOpened) window.location.href = IOS_ALTERNATE; }, 800);
