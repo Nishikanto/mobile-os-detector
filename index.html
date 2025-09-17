@@ -97,7 +97,7 @@
                     const ANDROID_ALTERNATIVE = `shipday://review/${reviewId}`;
 
                     if (isAndroid) {
-                        window.location.href = ANDROID_PRIMARY;
+                        window.location.href = ANDROID_ALTERNATIVE;
                         setT(() => { if (!appOpened) window.location.href = ANDROID_ALTERNATIVE; }, 2500);
                     } else if (isIOS) {
                         window.location.href = IOS_PRIMARY;
